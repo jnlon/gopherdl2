@@ -234,6 +234,8 @@ isDelay otherwise = False
 toFloat :: String -> Float
 toFloat s = (read s) :: Float
 
+label thing value = "(" ++ thing ++ "=" ++ value ++ ")"
+
 secsToUSecs :: Float -> Int
 secsToUSecs secs = round $ secs * 1000000
 
@@ -385,8 +387,8 @@ getRecursively url conf =
 
 crawlStatus :: Config -> Int -> GopherUrl -> String
 crawlStatus conf depth refUrl = 
-  let depthStr = "[" ++ (show $ (maxDepth conf) - depth) ++ "] " 
-  in "(menu) " ++ depthStr ++ (urlToString refUrl)
+  let depthStr = (show $ ((maxDepth conf) - depth)) ++ "/" ++ (show (maxDepth conf))
+  in "menu\t" ++ (urlToString refUrl) ++ "\t" ++ (label "depth" depthStr)
 
 crawlMenu :: GopherUrl -> Config -> Int -> Set.Set GopherUrl -> IO [GopherUrl]
 crawlMenu refUrl conf depth history =
@@ -414,9 +416,11 @@ getRemotes conf depth history url =
 getAndSaveToFilePrintStatus :: Float -> GopherUrl -> IO ()
 getAndSaveToFilePrintStatus delay url =
   threadDelay (secsToUSecs delay) >>
-  putStrFl ("(file) " ++ (urlToString url) ++ " ") >>
+  putStrFl ("file\t" ++ (urlToString url) ++ "\t") >>
   getAndSaveToFile url >>= \bs -> 
-  putStrLnFl ("(" ++ (show ((C.length bs) `div` 1000)) ++ "k)")
+  putStrLnFl (label "size" (kbSize bs))
+  where
+    kbSize bs = (show ((C.length bs) `div` 1000)) ++ "k"
 
 -- Get Argv, turn it into a Config
 main :: IO ()
