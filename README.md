@@ -1,4 +1,4 @@
-# gopherdl
+# gopherdl2
 
 *WIP Rewrite in Haskell*
 
